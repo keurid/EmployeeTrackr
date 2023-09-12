@@ -3,7 +3,7 @@ const util = require('util');
 
 const db = mysql.createConnection({
   host: 'localhost',
-  user: 'root',
+  user: 'your_username',
   password: 'your_password',
   database: 'employee_db',
 });
@@ -14,7 +14,6 @@ db.connect((err) => {
   if (err) throw err;
   console.log('Connected to the database');
 });
-
 
 module.exports = {
   getAllDepartments: async () => {
@@ -96,5 +95,83 @@ module.exports = {
     }
   },
 
+  updateEmployeeManager: async (employeeId, managerId) => {
+    try {
+      await db.query('UPDATE employee SET manager_id = ? WHERE id = ?', [managerId, employeeId]);
+      console.log(`Employee's manager updated.`);
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getEmployeesByManager: async (managerId) => {
+    try {
+      const employees = await db.query(`
+        SELECT e.id, e.first_name, e.last_name, r.title AS job_title, d.name AS department, r.salary
+        FROM employee e
+        INNER JOIN role r ON e.role_id = r.id
+        INNER JOIN department d ON r.department_id = d.id
+        WHERE e.manager_id = ?
+      `, [managerId]);
+      return employees;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getEmployeesByDepartment: async (departmentId) => {
+    try {
+      const employees = await db.query(`
+        SELECT e.id, e.first_name, e.last_name, r.title AS job_title, r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
+        FROM employee e
+        INNER JOIN role r ON e.role_id = r.id
+        LEFT JOIN employee m ON e.manager_id = m.id
+        WHERE r.department_id = ?
+      `, [departmentId]);
+      return employees;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  deleteDepartment: async (departmentId) => {
+    try {
+      await db.query('DELETE FROM department WHERE id = ?', [departmentId]);
+      console.log(`Department deleted.`);
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  deleteRole: async (roleId) => {
+    try {
+      await db.query('DELETE FROM role WHERE id = ?', [roleId]);
+      console.log(`Role deleted.`);
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  deleteEmployee: async (employeeId) => {
+    try {
+      await db.query('DELETE FROM employee WHERE id = ?', [employeeId]);
+      console.log(`Employee deleted.`);
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  calculateDepartmentBudget: async (departmentId) => {
+    try {
+      const [budget] = await db.query(`
+        SELECT SUM(r.salary) AS total_budget
+        FROM role r
+        WHERE r.department_id = ?
+      `, [departmentId]);
+      return budget.total_budget;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
