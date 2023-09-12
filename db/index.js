@@ -1,10 +1,12 @@
 const mysql = require('mysql2');
+const fs = require('fs');
 const util = require('util');
+const path = require('path');
 
 const db = mysql.createConnection({
   host: 'localhost',
-  user: 'your_username',
-  password: 'your_password',
+  user: 'root',
+  password: 'lbp123',
   database: 'employee_db',
 });
 
@@ -13,7 +15,26 @@ db.query = util.promisify(db.query);
 db.connect((err) => {
   if (err) throw err;
   console.log('Connected to the database');
+  executeSeedsSql();
 });
+
+function executeSeedsSql() {
+  const seedsSqlPath = path.join(__dirname, '../scripts/seeds.sql');
+
+  const sql = fs.readFileSync(seedsSqlPath, 'utf8');
+
+  const sqlStatements = sql.split(';').filter((statement) => statement.trim() !== '');
+
+  sqlStatements.forEach((statement) => {
+    db.query(statement, (err) => {
+      if (err) throw err;
+      console.log('SQL statement executed successfully');
+    });
+  });
+
+  console.log('All SQL statements executed successfully');
+  db.end();
+}
 
 module.exports = {
   getAllDepartments: async () => {
