@@ -28,11 +28,9 @@ function executeSeedsSql() {
   sqlStatements.forEach((statement) => {
     db.query(statement, (err) => {
       if (err) throw err;
-      console.log('SQL statement executed successfully');
     });
   });
 
-  console.log('All SQL statements executed successfully');
   db.end();
 }
 
@@ -148,51 +146,50 @@ module.exports = {
         INNER JOIN role r ON e.role_id = r.id
         LEFT JOIN employee m ON e.manager_id = m.id
         WHERE r.department_id = ?
-      `, [departmentId]);
-      return employees;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  deleteDepartment: async (departmentId) => {
-    try {
-      await db.query('DELETE FROM department WHERE id = ?', [departmentId]);
-      console.log(`Department deleted.`);
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  deleteRole: async (roleId) => {
-    try {
-      await db.query('DELETE FROM role WHERE id = ?', [roleId]);
-      console.log(`Role deleted.`);
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  deleteEmployee: async (employeeId) => {
-    try {
-      await db.query('DELETE FROM employee WHERE id = ?', [employeeId]);
-      console.log(`Employee deleted.`);
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  calculateDepartmentBudget: async (departmentId) => {
-    try {
-      const [budget] = await db.query(`
-        SELECT SUM(r.salary) AS total_budget
-        FROM role r
-        WHERE r.department_id = ?
-      `, [departmentId]);
-      return budget.total_budget;
-    } catch (error) {
-      throw error;
-    }
-  },
-};
-
+        `, [departmentId]);
+        return employees;
+      } catch (error) {
+        throw error;
+      }
+    },
+  
+    deleteDepartment: async (departmentId) => {
+      try {
+        await db.query('DELETE FROM department WHERE id = ?', [departmentId]);
+        console.log(`Department deleted.`);
+      } catch (error) {
+        throw error;
+      }
+    },
+  
+    deleteRole: async (roleId) => {
+      try {
+        await db.query('DELETE FROM role WHERE id = ?', [roleId]);
+        console.log(`Role deleted.`);
+      } catch (error) {
+        throw error;
+      }
+    },
+  
+    deleteEmployee: async (employeeId) => {
+      try {
+        await db.query('DELETE FROM employee WHERE id = ?', [employeeId]);
+        console.log(`Employee deleted.`);
+      } catch (error) {
+        throw error;
+      }
+    },
+  
+    calculateDepartmentBudget: async (departmentId) => {
+      try {
+        const [budget] = await db.query(`
+          SELECT SUM(r.salary) AS total_budget
+          FROM role r
+          WHERE r.department_id = ?
+        `, [departmentId]);
+        return budget.total_budget;
+      } catch (error) {
+        throw error;
+      }
+    },
+  };
